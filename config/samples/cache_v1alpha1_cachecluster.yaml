@@ -1,0 +1,22 @@
+apiVersion: cache.example.com/v1alpha1
+kind: CacheCluster
+metadata:
+  labels:
+    app.kubernetes.io/name: cache-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: cachecluster-sample
+  namespace: default
+spec:
+  replicas: 6
+  image: redis:7
+  mode: RedisCluster
+  storage:
+    size: 1Gi
+    storageClassName: local-path
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

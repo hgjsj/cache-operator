@@ -1,0 +1,117 @@
+/*
+Copyright 2026.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+package v1alpha1
+
+import (
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
+
+// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
+
+// CacheClusterSpec defines the desired state of CacheCluster.
+type CacheClusterSpec struct {
+	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
+
+	// Replicas is the number of cache cluster instances.
+	// +kubebuilder:default=1
+	// +kubebuilder:validation:Minimum=1
+	Replicas int32 `json:"replicas,omitempty"`
+
+	// Image is the container image for the cache cluster instances.
+	// +kubebuilder:default="redis:7"
+	// +kubebuilder:validation:MinLength=1
+	Image string `json:"image,omitempty"`
+
+	Storage StorageSpec `json:"storage,omitempty"`
+
+	// +optional
+	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
+
+	// +optional
+	Paused bool `json:"paused,omitempty"`
+
+	// Mode defines the cache cluster mode.
+	// +kubebuilder:validation:Enum=Standalone;RedisCluster;Sentinel
+	// +kubebuilder:default=Standalone
+	Mode string `json:"mode,omitempty"`
+}
+
+type StorageSpec struct {
+	// Size is the size of the persistent volume claim.
+	// +kubebuilder:default="1Gi"
+	Size resource.Quantity `json:"size,omitempty"`
+
+	// StorageClassName is the name of the StorageClass to use for the persistent volume claim.
+	// +optional
+	StorageClassName *string `json:"storageClassName,omitempty"`
+}
+
+// CacheClusterStatus defines the observed state of CacheCluster.
+type CacheClusterStatus struct {
+	// Phase represents the current phase of the cache cluster.
+	Phase string `json:"phase,omitempty"`
+
+	// Replicas represents the number of cache cluster instances.
+	Replicas int32 `json:"replicas,omitempty"`
+
+	// ReadyReplicas represents the number of ready cache cluster instances.
+	ReadyReplicas int32 `json:"readyReplicas,omitempty"`
+
+	// ObservedGeneration represents the most recent generation observed by the controller.
+	ObservedGeneration int64 `json:"observedGeneration,omitempty"`
+
+	// Conditions represents the current conditions of the cache cluster.
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
+
+	// ClusterState represents the current state of the cache cluster.
+	ClusterState string `json:"clusterState,omitempty"`
+
+	// Initialized represents whether the cache cluster has been initialized.
+	Initialized bool `json:"initialized,omitempty"`
+}
+
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Phase",type="string",JSONPath=".status.phase"
+// +kubebuilder:printcolumn:name="Replicas",type="integer",JSONPath=".status.replicas"
+// +kubebuilder:printcolumn:name="Ready",type="integer",JSONPath=".status.readyReplicas"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
+// CacheCluster is the Schema for the cacheclusters API.
+type CacheCluster struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec   CacheClusterSpec   `json:"spec,omitempty"`
+	Status CacheClusterStatus `json:"status,omitempty"`
+}
+
+// +kubebuilder:object:root=true
+
+// CacheClusterList contains a list of CacheCluster.
+type CacheClusterList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []CacheCluster `json:"items"`
+}
+
+func init() {
+	SchemeBuilder.Register(&CacheCluster{}, &CacheClusterList{})
+}
